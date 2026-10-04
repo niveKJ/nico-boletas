@@ -3,7 +3,7 @@ require "base64"
 require "json"
 
 class GeminiExtractor
-  GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent"
+  GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
 
   PROMPT = 'Extrae de esta boleta chilena estos campos en JSON puro sin markdown: {"nombre_comercio":"...","rut_comercio":"XX.XXX.XXX-X","fecha":"YYYY-MM-DD","monto_total":numero_entero,"items":["item1","item2"]}. Solo JSON, sin explicaciones.'
 
