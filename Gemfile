@@ -59,3 +59,8 @@ group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
 end
+
+gem "faraday", "~> 2.14"
+gem "pdf-reader", "~> 2.16"
+
+gem "dotenv-rails", "~> 3.2", groups: [:development, :test]
