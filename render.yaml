@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: nico-boletas
+    runtime: ruby
+    buildCommand: "./bin/render-build.sh"
+    startCommand: "bundle exec puma -C config/puma.rb"
+    envVars:
+      - key: RAILS_ENV
+        value: production
+      - key: RAILS_MASTER_KEY
+        fromFile: config/master.key
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: nico-boletas-db
+          property: connectionString
+
+databases:
+  - name: nico-boletas-db
+    databaseName: nico_boletas_production
+    user: nico_boletas
