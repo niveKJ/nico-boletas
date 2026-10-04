@@ -1,37 +1,140 @@
-<div class="flex items-center justify-between mb-8">
-  <div>
-    <h1 class="text-2xl font-bold text-slate-800">Mis boletas</h1>
-    <p class="text-slate-500 text-sm mt-1">Historial de boletas procesadas</p>
-  </div>
-</div>
+<%# app/views/boletas/index.html.erb %>
+<div style="min-height:100vh;background:#F8F9FA">
 
-<% if @boletas.empty? %>
-  <div class="text-center py-20 bg-white rounded-2xl border border-slate-200">
-    <p class="text-4xl mb-4">🧾</p>
-    <p class="text-slate-600 font-medium">Aún no hay boletas cargadas</p>
-    <p class="text-slate-400 text-sm mt-1">Sube tu primera boleta para comenzar</p>
-    <%= link_to "Subir boleta", new_boleta_path, class: "mt-6 inline-block bg-blue-600 text-white text-sm font-medium px-6 py-2.5 rounded-lg hover:bg-blue-700 transition-colors" %>
-  </div>
-<% else %>
-  <div class="space-y-3">
-    <% @boletas.each do |boleta| %>
-      <%= link_to boleta_path(boleta), class: "block bg-white border border-slate-200 rounded-xl px-6 py-4 hover:border-blue-300 hover:shadow-sm transition-all" do %>
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-4">
-            <div class="text-2xl">🧾</div>
-            <div>
-              <p class="font-semibold text-slate-800"><%= boleta.nombre_comercio || "Sin procesar" %></p>
-              <p class="text-slate-400 text-sm"><%= boleta.created_at.strftime("%d/%m/%Y %H:%M") %></p>
-            </div>
-          </div>
-          <div class="flex items-center gap-4">
-            <% if boleta.monto_total %>
-              <p class="font-bold text-slate-800">$<%= number_with_delimiter(boleta.monto_total, delimiter: ".") %></p>
-            <% end %>
-            <%= render "estado_badge", boleta: boleta %>
-          </div>
-        </div>
+  <header style="background:#FFFFFF;border-bottom:1px solid #E5E7EB">
+    <div style="max-width:1120px;margin:0 auto;padding:12px 24px;box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 24px">
+      <a href="<%= root_path %>" style="display:inline-flex;align-items:center;gap:10px;min-height:44px;text-decoration:none;color:#111827">
+        <span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:9px;background:#4F46E5;color:#FFFFFF">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3z"></path><path d="M9 8h6"></path><path d="M9 12h6"></path></svg>
+        </span>
+        <span style="font-size:17px;font-weight:800;letter-spacing:-0.01em">NICO <span style="font-weight:500;color:#4B5563">Boletas</span></span>
+      </a>
+      <%= link_to new_boleta_path, class: "nb-primary",
+          style: "display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:10px;background:#4F46E5;color:#FFFFFF;font-size:15px;font-weight:600;text-decoration:none;box-shadow:0 1px 2px rgba(79,70,229,0.3)" do %>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+        Nueva Boleta
       <% end %>
+    </div>
+  </header>
+
+  <main style="max-width:1120px;margin:0 auto;padding:40px 24px 64px;box-sizing:border-box;display:flex;flex-direction:column;gap:32px">
+
+    <% if notice.present? %>
+      <div role="alert" style="display:flex;align-items:center;gap:10px;background:#ECFDF5;border:1px solid #A7F3D0;color:#065F46;border-radius:10px;padding:12px 16px;font-size:14px;font-weight:500">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 12.5l2.5 2.5 4.5-5"></path></svg>
+        <%= notice %>
+      </div>
     <% end %>
-  </div>
-<% end %>
+
+    <div>
+      <h1 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.02em;line-height:1.2">Boletas</h1>
+      <p style="margin:4px 0 0;font-size:15px;color:#4B5563">Sube una boleta y deja que la IA complete los datos por ti.</p>
+    </div>
+
+    <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:20px">
+
+      <div style="background:#FFFFFF;border:1px solid #EEF0F2;border-radius:12px;box-shadow:0 1px 2px rgba(17,24,39,0.04);padding:24px;display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:14px;font-weight:500;color:#4B5563">Total boletas</span>
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;background:#EEF2FF;color:#4F46E5">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3z"></path><path d="M9 8h6"></path><path d="M9 12h6"></path></svg>
+          </span>
+        </div>
+        <div style="font-size:32px;font-weight:700;letter-spacing:-0.02em;font-variant-numeric:tabular-nums"><%= @total_boletas %></div>
+        <div style="font-size:13px;color:#6B7280">Subidas a la fecha</div>
+      </div>
+
+      <div style="background:#FFFFFF;border:1px solid #EEF0F2;border-radius:12px;box-shadow:0 1px 2px rgba(17,24,39,0.04);padding:24px;display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:14px;font-weight:500;color:#4B5563">Completadas</span>
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;background:#ECFDF5;color:#059669">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 12.5l2.5 2.5 4.5-5"></path></svg>
+          </span>
+        </div>
+        <div style="font-size:32px;font-weight:700;letter-spacing:-0.02em;font-variant-numeric:tabular-nums"><%= @completadas %></div>
+        <div style="font-size:13px;color:#6B7280">Procesadas correctamente</div>
+      </div>
+
+      <div style="background:#FFFFFF;border:1px solid #EEF0F2;border-radius:12px;box-shadow:0 1px 2px rgba(17,24,39,0.04);padding:24px;display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:14px;font-weight:500;color:#4B5563">Monto total</span>
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;background:#EEF2FF;color:#4F46E5">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2"></rect><circle cx="12" cy="12" r="2.5"></circle></svg>
+          </span>
+        </div>
+        <div style="font-size:28px;font-weight:700;letter-spacing:-0.02em;font-variant-numeric:tabular-nums">$<%= number_with_delimiter(@monto_total.to_i, delimiter: ".") %></div>
+        <div style="font-size:13px;color:#6B7280">En boletas completadas</div>
+      </div>
+
+    </section>
+
+    <% if @boletas.any? %>
+      <section style="background:#FFFFFF;border:1px solid #EEF0F2;border-radius:12px;box-shadow:0 1px 2px rgba(17,24,39,0.04);overflow:hidden">
+        <div style="padding:20px 24px;display:flex;align-items:center;gap:10px">
+          <h2 style="margin:0;font-size:17px;font-weight:700">Tus boletas</h2>
+          <span style="display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:24px;padding:0 8px;border-radius:999px;background:#F3F4F6;color:#4B5563;font-size:12px;font-weight:700"><%= @boletas.count %></span>
+        </div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;min-width:820px;border-collapse:collapse;font-size:14px">
+            <thead>
+              <tr>
+                <% ["Comercio","RUT","Fecha","Total","Estado","Acciones"].each_with_index do |col, i| %>
+                  <th scope="col" style="text-align:<%= i >= 3 && i != 4 ? 'right' : 'left' %>;padding:12px 24px;font-size:12px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:#4B5563;background:#F8F9FA;border-top:1px solid #EEF0F2;border-bottom:1px solid #E5E7EB;white-space:nowrap"><%= col %></th>
+                <% end %>
+              </tr>
+            </thead>
+            <tbody>
+              <% @boletas.each do |boleta| %>
+                <tr class="nb-row">
+                  <td style="padding:10px 24px;border-bottom:1px solid #F1F3F5">
+                    <% if boleta.nombre_comercio.present? %>
+                      <span style="font-weight:600;color:#111827"><%= boleta.nombre_comercio %></span>
+                    <% else %>
+                      <span style="color:#9CA3AF;font-style:italic">Sin datos</span>
+                    <% end %>
+                  </td>
+                  <td style="padding:10px 24px;border-bottom:1px solid #F1F3F5;color:#4B5563;white-space:nowrap"><%= boleta.rut_comercio.presence || "—" %></td>
+                  <td style="padding:10px 24px;border-bottom:1px solid #F1F3F5;color:#4B5563;white-space:nowrap"><%= boleta.fecha ? boleta.fecha.strftime("%d %b %Y") : "—" %></td>
+                  <td style="padding:10px 24px;border-bottom:1px solid #F1F3F5;text-align:right;font-weight:600;white-space:nowrap">
+                    <% if boleta.monto_total.present? %>$<%= number_with_delimiter(boleta.monto_total.to_i, delimiter: ".") %><% else %><span style="color:#9CA3AF">—</span><% end %>
+                  </td>
+                  <td style="padding:10px 24px;border-bottom:1px solid #F1F3F5"><%= render "estado_badge", boleta: boleta %></td>
+                  <td style="padding:10px 24px;border-bottom:1px solid #F1F3F5;text-align:right">
+                    <div style="display:flex;justify-content:flex-end;gap:8px">
+                      <% if boleta.estado == "completado" %>
+                        <%= link_to "Revisar", edit_boleta_path(boleta), class: "nb-soft",
+                            style: "display:inline-flex;align-items:center;min-height:36px;padding:0 14px;border-radius:8px;background:#EEF2FF;color:#4338CA;font-size:13px;font-weight:600;text-decoration:none" %>
+                      <% elsif boleta.estado == "error" %>
+                        <%= link_to "Reintentar", edit_boleta_path(boleta), class: "nb-ghost",
+                            style: "display:inline-flex;align-items:center;min-height:36px;padding:0 14px;border-radius:8px;color:#DC2626;font-size:13px;font-weight:600;text-decoration:none;border:1px solid #FECACA" %>
+                      <% end %>
+                      <%= link_to "Ver", boleta_path(boleta), class: "nb-ghost",
+                          style: "display:inline-flex;align-items:center;min-height:36px;padding:0 14px;border-radius:8px;color:#4F46E5;font-size:13px;font-weight:600;text-decoration:none" %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    <% else %>
+      <div style="background:#FFFFFF;border:1px solid #EEF0F2;border-radius:12px;padding:80px 24px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:16px">
+        <span style="display:inline-flex;align-items:center;justify-content:center;width:64px;height:64px;border-radius:999px;background:#EEF2FF;color:#4F46E5">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3z"></path><path d="M9 8h6"></path><path d="M9 12h6"></path></svg>
+        </span>
+        <div>
+          <h3 style="margin:0 0 6px;font-size:18px;font-weight:700">Sin boletas todavía</h3>
+          <p style="margin:0;font-size:15px;color:#4B5563">Sube tu primera boleta y la IA extraerá los datos automáticamente.</p>
+        </div>
+        <%= link_to new_boleta_path, class: "nb-primary",
+            style: "display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 20px;border-radius:10px;background:#4F46E5;color:#FFFFFF;font-size:15px;font-weight:600;text-decoration:none" do %>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+          Subir primera boleta
+        <% end %>
+      </div>
+    <% end %>
+
+  </main>
+</div>

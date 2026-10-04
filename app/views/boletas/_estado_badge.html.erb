@@ -1,9 +1,21 @@
-<% colores = {
-  "pendiente"  => "bg-yellow-100 text-yellow-700",
-  "procesando" => "bg-blue-100 text-blue-700",
-  "completado" => "bg-green-100 text-green-700",
-  "error"      => "bg-red-100 text-red-700"
-} %>
-<span class="text-xs font-medium px-2.5 py-1 rounded-full <%= colores[boleta.estado] || 'bg-slate-100 text-slate-600' %>">
-  <%= boleta.estado.capitalize %>
+<%# app/views/boletas/_estado_badge.html.erb %>
+<%
+  bg, fg, icon_color, label = case boleta.estado
+  when "completado" then ["#ECFDF5", "#065F46", "#059669", "Completada"]
+  when "procesando" then ["#FFFBEB", "#92400E", "#D97706", "Procesando"]
+  when "error"      then ["#FEF2F2", "#991B1B", "#DC2626", "Error"]
+  else                   ["#F3F4F6", "#374151", "#6B7280", "Pendiente"]
+  end
+%>
+<span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:<%= bg %>;color:<%= fg %>;font-size:13px;font-weight:600;white-space:nowrap">
+  <% if boleta.estado == "completado" %>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="<%= icon_color %>" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 12.5l2.5 2.5 4.5-5"></path></svg>
+  <% elsif boleta.estado == "procesando" %>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="<%= icon_color %>" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+  <% elsif boleta.estado == "error" %>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="<%= icon_color %>" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M15 9l-6 6"></path><path d="M9 9l6 6"></path></svg>
+  <% else %>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="<%= icon_color %>" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+  <% end %>
+  <%= label %>
 </span>
