@@ -13,7 +13,7 @@ class BoletasController < ApplicationController
     @boleta = Boleta.new(estado: "pendiente")
 
     if @boleta.save
-      redirect_to @boleta, notice: "Boleta subida correctamente."
+      redirect_to boleta_path(@boleta), notice: "Boleta subida correctamente."
     else
       render :new, status: :unprocessable_entity
     end
@@ -27,7 +27,7 @@ class BoletasController < ApplicationController
 
   def update
     if @boleta.update(boleta_params)
-      redirect_to @boleta, notice: "Boleta actualizada."
+      redirect_to boleta_path(@boleta), notice: "Boleta actualizada."
     else
       render :edit, status: :unprocessable_entity
     end

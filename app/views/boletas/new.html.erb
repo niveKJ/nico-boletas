@@ -1,4 +1,32 @@
-<div>
-  <h1 class="font-bold text-4xl">Boletas#new</h1>
-  <p>Find me in app/views/boletas/new.html.erb</p>
+<div class="mb-8">
+  <h1 class="text-2xl font-bold text-slate-800">Subir boleta</h1>
+  <p class="text-slate-500 text-sm mt-1">Sube una imagen o PDF de tu boleta</p>
 </div>
+
+<div class="bg-white border border-slate-200 rounded-2xl p-8">
+  <%= form_with model: @boleta, url: boletas_path, multipart: true do |f| %>
+    <div class="border-2 border-dashed border-slate-300 rounded-xl p-12 text-center hover:border-blue-400 transition-colors cursor-pointer" onclick="document.getElementById('archivo-input').click()">
+      <p class="text-4xl mb-3">📎</p>
+      <p class="text-slate-600 font-medium">Haz clic para seleccionar un archivo</p>
+      <p class="text-slate-400 text-sm mt-1">PDF, JPG o PNG — máximo 10MB</p>
+      <%= f.file_field :archivo, id: "archivo-input", class: "hidden", accept: "image/*,.pdf" %>
+    </div>
+
+    <div id="archivo-nombre" class="hidden mt-4 bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-sm text-slate-600"></div>
+
+    <div class="mt-6 flex justify-end">
+      <%= f.submit "Analizar boleta", class: "bg-blue-600 text-white font-medium px-6 py-2.5 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer" %>
+    </div>
+  <% end %>
+</div>
+
+<script>
+  document.getElementById('archivo-input').addEventListener('change', function(e) {
+    const nombre = e.target.files[0]?.name
+    const div = document.getElementById('archivo-nombre')
+    if (nombre) {
+      div.textContent = '📄 ' + nombre
+      div.classList.remove('hidden')
+    }
+  })
+</script>

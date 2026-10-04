@@ -1,4 +1,37 @@
-<div>
-  <h1 class="font-bold text-4xl">Boletas#index</h1>
-  <p>Find me in app/views/boletas/index.html.erb</p>
+<div class="flex items-center justify-between mb-8">
+  <div>
+    <h1 class="text-2xl font-bold text-slate-800">Mis boletas</h1>
+    <p class="text-slate-500 text-sm mt-1">Historial de boletas procesadas</p>
+  </div>
 </div>
+
+<% if @boletas.empty? %>
+  <div class="text-center py-20 bg-white rounded-2xl border border-slate-200">
+    <p class="text-4xl mb-4">🧾</p>
+    <p class="text-slate-600 font-medium">Aún no hay boletas cargadas</p>
+    <p class="text-slate-400 text-sm mt-1">Sube tu primera boleta para comenzar</p>
+    <%= link_to "Subir boleta", new_boleta_path, class: "mt-6 inline-block bg-blue-600 text-white text-sm font-medium px-6 py-2.5 rounded-lg hover:bg-blue-700 transition-colors" %>
+  </div>
+<% else %>
+  <div class="space-y-3">
+    <% @boletas.each do |boleta| %>
+      <%= link_to boleta_path(boleta), class: "block bg-white border border-slate-200 rounded-xl px-6 py-4 hover:border-blue-300 hover:shadow-sm transition-all" do %>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <div class="text-2xl">🧾</div>
+            <div>
+              <p class="font-semibold text-slate-800"><%= boleta.nombre_comercio || "Sin procesar" %></p>
+              <p class="text-slate-400 text-sm"><%= boleta.created_at.strftime("%d/%m/%Y %H:%M") %></p>
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <% if boleta.monto_total %>
+              <p class="font-bold text-slate-800">$<%= number_with_delimiter(boleta.monto_total, delimiter: ".") %></p>
+            <% end %>
+            <%= render "estado_badge", boleta: boleta %>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+<% end %>
