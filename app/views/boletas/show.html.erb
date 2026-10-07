@@ -107,38 +107,7 @@
 
       <aside style="flex:1 1 280px;min-width:0;background:#FFFFFF;border:1px solid #EEF0F2;border-radius:12px;box-shadow:0 1px 2px rgba(17,24,39,0.04);padding:20px;box-sizing:border-box;display:flex;flex-direction:column;gap:14px">
         <h2 style="margin:0;font-size:15px;font-weight:700">Archivo original</h2>
-        <% if @boleta.archivo.attached? %>
-          <% if @boleta.archivo.content_type.start_with?("image/") %>
-            <%= image_tag url_for(@boleta.archivo),
-                style: "width:100%;border-radius:10px;border:1px solid #E5E7EB;display:block",
-                alt: "Vista previa de la boleta" %>
-          <% else %>
-            <div style="aspect-ratio:3/4;max-height:380px;box-sizing:border-box;border:1px dashed #9CA3AF;border-radius:10px;background:#F8F9FA;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#6B7280;text-align:center;padding:16px">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path></svg>
-              <span style="font-size:13px">Vista previa no disponible</span>
-            </div>
-          <% end %>
-          <div style="display:flex;flex-direction:column;gap:4px">
-            <span style="font-size:14px;font-weight:600;overflow-wrap:anywhere"><%= @boleta.archivo.filename %></span>
-            <span style="font-size:13px;color:#6B7280"><%= number_to_human_size(@boleta.archivo.byte_size) %></span>
-            <%= link_to rails_blob_path(@boleta.archivo, disposition: "attachment"),
-                style: "display:inline-flex;align-items:center;gap:6px;min-height:44px;font-size:14px;font-weight:600;text-decoration:none;color:#4F46E5" do %>
-              Descargar archivo
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-            <% end %>
-          </div>
-        <% else %>
-          <% if @boleta.archivo.previewable? %>
-            <%= image_tag @boleta.archivo.preview(resize_to_limit: [400, 600]),
-                style: "width:100%;border-radius:10px;border:1px solid #E5E7EB;display:block",
-                alt: "Vista previa de la boleta" %>
-          <% else %>
-            <div style="aspect-ratio:3/4;max-height:380px;box-sizing:border-box;border:1px dashed #9CA3AF;border-radius:10px;background:#F8F9FA;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#6B7280;text-align:center;padding:16px">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path></svg>
-              <span style="font-size:13px">Vista previa no disponible</span>
-            </div>
-          <% end %>
-        <% end %>
+        <%= render "vista_previa", boleta: @boleta %>
       </aside>
     </div>
   </main>
