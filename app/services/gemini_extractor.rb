@@ -8,8 +8,13 @@ require "date"
 # - PDF con texto: se extrae el texto con pdf-reader y se envía solo el texto (más rápido y barato).
 # - Imagen o PDF escaneado: se envía el archivo y Gemini hace el OCR con su modelo de visión.
 class GeminiExtractor
-  MODEL   = ENV.fetch("GEMINI_MODEL", "gemini-2.5-flash")
-  API_URL = "https://generativelanguage.googleapis.com/v1beta/models/#{MODEL}:generateContent"
+  # Se prueban en orden: si un modelo está saturado (503), sin cuota (429)
+  # o fue retirado (404), se intenta con el siguiente.
+  MODELOS  = [ ENV.fetch("GEMINI_MODEL", "gemini-3.8-flash"), "gemini-3.5-flash", "gemini-3.1-flash-lite" ].uniq.freeze
+  API_BASE = "https://generativelanguage.googleapis.com/v1beta/models"
+  ESTADOS_REINTENTABLES = [ 404, 429, 500, 502, 503, 504 ].freeze
+
+  class ModeloNoDisponible < StandardError; end
 
   MIN_TEXTO_PDF = 50      # menos que esto: se asume PDF escaneado y se envía como imagen
   MAX_TEXTO_PDF = 12_000  # suficiente para boletas largas sin perder el total, que va al final
@@ -77,37 +82,54 @@ class GeminiExtractor
   end
 
   def call_gemini(parts)
-    res  = connection.post(API_URL, { contents: [ { parts: parts } ], generationConfig: generation_config })
+    ultimo_error = nil
+    MODELOS.each do |modelo|
+      return request_model(modelo, parts)
+    rescue ModeloNoDisponible => e
+      ultimo_error = e
+      Rails.logger.warn "[GeminiExtractor] #{modelo} no disponible: #{e.message}"
+    end
+    raise ultimo_error
+  end
+
+  def request_model(modelo, parts)
+    payload = { contents: [ { parts: parts } ], generationConfig: generation_config(modelo) }
+    res  = connection.post("#{API_BASE}/#{modelo}:generateContent", payload)
     body = res.body.is_a?(Hash) ? res.body : {}
-    raise "Gemini API error #{res.status}: #{body.dig("error", "message") || "sin detalle"}" unless res.success?
+    unless res.success?
+      mensaje = "Gemini API error #{res.status}: #{body.dig("error", "message") || "sin detalle"}"
+      raise(ESTADOS_REINTENTABLES.include?(res.status) ? ModeloNoDisponible : RuntimeError, mensaje)
+    end
 
     candidate = body.dig("candidates", 0) || {}
     raw = Array(candidate.dig("content", "parts")).filter_map { |part| part["text"] }.join.strip
     raise "Respuesta vacía de Gemini (finishReason: #{candidate["finishReason"] || "desconocido"})" if raw.empty?
 
-    Rails.logger.info "[GeminiExtractor] respuesta: #{raw[0, 300]}"
+    Rails.logger.info "[GeminiExtractor] respuesta de #{modelo}: #{raw[0, 300]}"
     normalize(parse_json(raw))
+  rescue Faraday::Error => e
+    raise ModeloNoDisponible, "error de conexión con Gemini: #{e.message}"
   end
 
   def connection
     Faraday.new(headers: { "x-goog-api-key" => @api_key }) do |f|
       f.request :json
       f.response :json
-      f.options.timeout = 60
+      f.options.timeout = 45
       f.options.open_timeout = 10
     end
   end
 
-  def generation_config
+  def generation_config(modelo)
     config = {
       temperature: 0,
-      maxOutputTokens: 4096,
+      maxOutputTokens: 8192,
       responseMimeType: "application/json",
       responseSchema: RESPONSE_SCHEMA
     }
     # En gemini-2.5-flash el "thinking" viene activado y consume maxOutputTokens,
     # lo que puede dejar la respuesta vacía. Para extraer datos no hace falta.
-    config[:thinkingConfig] = { thinkingBudget: 0 } if MODEL.include?("2.5-flash")
+    config[:thinkingConfig] = { thinkingBudget: 0 } if modelo.include?("2.5-flash")
     config
   end
 
