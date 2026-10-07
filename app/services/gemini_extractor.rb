@@ -93,7 +93,7 @@ class GeminiExtractor
   end
 
   def request_model(modelo, parts)
-    payload = { contents: [ { parts: parts } ], generationConfig: generation_config(modelo) }
+    payload = { contents: [ { parts: parts } ], generationConfig: generation_config }
     res  = connection.post("#{API_BASE}/#{modelo}:generateContent", payload)
     body = res.body.is_a?(Hash) ? res.body : {}
     unless res.success?
@@ -120,17 +120,13 @@ class GeminiExtractor
     end
   end
 
-  def generation_config(modelo)
-    config = {
+  def generation_config
+    {
       temperature: 0,
       maxOutputTokens: 8192,
       responseMimeType: "application/json",
       responseSchema: RESPONSE_SCHEMA
     }
-    # En gemini-2.5-flash el "thinking" viene activado y consume maxOutputTokens,
-    # lo que puede dejar la respuesta vacía. Para extraer datos no hace falta.
-    config[:thinkingConfig] = { thinkingBudget: 0 } if modelo.include?("2.5-flash")
-    config
   end
 
   def parse_json(raw)
