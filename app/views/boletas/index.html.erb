@@ -94,7 +94,7 @@
                     <% end %>
                   </td>
                   <td style="padding:10px 24px;border-bottom:1px solid #F1F3F5;color:#4B5563;white-space:nowrap"><%= boleta.rut_comercio.presence || "—" %></td>
-                  <td style="padding:10px 24px;border-bottom:1px solid #F1F3F5;color:#4B5563;white-space:nowrap"><%= boleta.fecha ? boleta.fecha.strftime("%d %b %Y") : "—" %></td>
+                  <td style="padding:10px 24px;border-bottom:1px solid #F1F3F5;color:#4B5563;white-space:nowrap"><%= boleta.fecha_formateada %></td>
                   <td style="padding:10px 24px;border-bottom:1px solid #F1F3F5;text-align:right;font-weight:600;white-space:nowrap">
                     <% if boleta.monto_total.present? %>$<%= number_with_delimiter(boleta.monto_total.to_i, delimiter: ".") %><% else %><span style="color:#9CA3AF">—</span><% end %>
                   </td>
@@ -110,6 +110,9 @@
                       <% end %>
                       <%= link_to "Ver", boleta_path(boleta), class: "nb-ghost",
                           style: "display:inline-flex;align-items:center;min-height:36px;padding:0 14px;border-radius:8px;color:#4F46E5;font-size:13px;font-weight:600;text-decoration:none" %>
+                      <%= button_to "Eliminar", boleta_path(boleta), method: :delete, class: "nb-ghost",
+                          form: { style: "display:inline-flex;margin:0", onsubmit: "return confirm('¿Eliminar esta boleta? Esta acción no se puede deshacer.')" },
+                          style: "display:inline-flex;align-items:center;min-height:36px;padding:0 14px;border:none;border-radius:8px;background:transparent;color:#DC2626;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer" %>
                     </div>
                   </td>
                 </tr>

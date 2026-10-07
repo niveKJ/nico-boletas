@@ -1,13 +1,12 @@
-# app/controllers/boletas_controller.rb
 class BoletasController < ApplicationController
-  before_action :set_boleta, only: %i[show edit update destroy]
+  before_action :set_boleta, only: %i[ show edit update destroy ]
 
   # GET /boletas
   def index
     @boletas       = Boleta.order(created_at: :desc)
-    @total_boletas = @boletas.size
-    @completadas   = @boletas.count { |b| b.estado == "completado" }
-    @monto_total   = @boletas.sum { |b| b.monto_total.to_f }
+    @total_boletas = Boleta.count
+    @completadas   = Boleta.completadas.count
+    @monto_total   = Boleta.completadas.sum(:monto_total)
   end
 
   # GET /boletas/new
@@ -76,7 +75,7 @@ class BoletasController < ApplicationController
   # DELETE /boletas/:id
   def destroy
     @boleta.destroy
-    redirect_to boletas_path, notice: "Boleta eliminada."
+    redirect_to boletas_path, notice: "Boleta eliminada.", status: :see_other
   end
 
   private

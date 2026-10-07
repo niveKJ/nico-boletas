@@ -49,6 +49,18 @@
       </div>
     <% end %>
 
+    <%# Errores de validación al guardar %>
+    <% if @boleta.errors.any? %>
+      <div role="alert" style="background:#FEF2F2;border:1px solid #FECACA;color:#991B1B;border-radius:10px;padding:12px 16px;font-size:14px;font-weight:500">
+        No se pudo guardar la boleta:
+        <ul style="margin:6px 0 0;padding-left:18px;font-weight:400">
+          <% @boleta.errors.full_messages.each do |mensaje| %>
+            <li><%= mensaje %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
     <%# Formulario y boleta original lado a lado, para comparar al revisar %>
     <div style="display:flex;flex-wrap:wrap;align-items:flex-start;gap:24px">
 
@@ -90,7 +102,7 @@
                 style: "font-size:14px;font-weight:600;color:#374151" %>
             <%= f.number_field :monto_total,
                 placeholder: "Ej: 15990",
-                min: 0,
+                min: 1,
                 step: 1,
                 style: "width:100%;box-sizing:border-box;border:1px solid #D1D5DB;border-radius:8px;padding:10px 12px;font-size:15px;color:#111827;background:#FFFFFF;font-family:inherit;font-variant-numeric:tabular-nums;outline:none",
                 required: true %>

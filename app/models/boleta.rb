@@ -1,25 +1,25 @@
-# app/models/boleta.rb
 class Boleta < ApplicationRecord
   has_one_attached :archivo
 
-  ESTADOS = %w[procesando extraido completado error].freeze
+  ESTADOS = %w[ procesando extraido completado error ].freeze
 
-  validates :nombre_comercio, presence: true, on: :update
-  validates :fecha,           presence: true, on: :update
-  validates :monto_total,     presence: true,
-                              numericality: { greater_than: 0 }, on: :update
+  scope :completadas, -> { where(estado: "completado") }
+
+  validates :estado, inclusion: { in: ESTADOS }
+
+  # Los datos solo son obligatorios al confirmar: la boleta se crea vacía y se
+  # completa con lo que extrae la IA o con lo que ingresa la persona.
+  with_options on: :update do
+    validates :nombre_comercio, presence: { message: "no puede estar en blanco" }
+    validates :fecha,           presence: { message: "no puede estar en blanco" }
+    validates :monto_total,     numericality: { greater_than: 0, message: "debe ser mayor que 0" }
+  end
 
   def items_array
-    return [] if items.blank?
     items.to_s.split("\n").map(&:strip).reject(&:blank?)
   end
 
-  def monto_formateado
-    return "-" if monto_total.blank?
-    "$#{monto_total.to_i.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\1.').reverse}"
-  end
-
   def fecha_formateada
-    fecha&.strftime("%d/%m/%Y") || "-"
+    fecha&.strftime("%d/%m/%Y") || "—"
   end
 end
