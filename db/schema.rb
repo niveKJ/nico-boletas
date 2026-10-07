@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_04_071234) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_07_222000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -51,17 +51,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_04_071234) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "items"
-  end
-
-  create_table "compras", force: :cascade do |t|
-    t.string "nombre_comercio"
-    t.string "rut_emisor"
-    t.date "fecha"
-    t.decimal "total", precision: 12, scale: 2
-    t.text "items"
-    t.string "estado", default: "pendiente"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
