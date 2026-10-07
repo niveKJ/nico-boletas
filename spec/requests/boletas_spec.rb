@@ -1,32 +1,23 @@
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe "Boletas", type: :request do
-  describe "GET /index" do
-    it "returns http success" do
-      get "/boletas/index"
-      expect(response).to have_http_status(:success)
+  describe "PATCH /boletas/:id" do
+    it "guarda los datos corregidos y marca la boleta como completada" do
+      boleta = FactoryBot.create(:boleta, nombre_comercio: "LIDR")
+
+      patch boleta_path(boleta), params: { boleta: { nombre_comercio: "Lider" } }
+
+      expect(response).to redirect_to(boleta_path(boleta))
+      expect(boleta.reload).to have_attributes(nombre_comercio: "Lider", estado: "completado")
     end
   end
 
-  describe "GET /new" do
-    it "returns http success" do
-      get "/boletas/new"
-      expect(response).to have_http_status(:success)
+  describe "DELETE /boletas/:id" do
+    it "elimina la boleta y vuelve al listado" do
+      boleta = FactoryBot.create(:boleta)
+
+      expect { delete boleta_path(boleta) }.to change(Boleta, :count).by(-1)
+      expect(response).to redirect_to(boletas_path)
     end
   end
-
-  describe "GET /show" do
-    it "returns http success" do
-      get "/boletas/show"
-      expect(response).to have_http_status(:success)
-    end
-  end
-
-  describe "GET /edit" do
-    it "returns http success" do
-      get "/boletas/edit"
-      expect(response).to have_http_status(:success)
-    end
-  end
-
 end
